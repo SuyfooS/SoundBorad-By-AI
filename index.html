@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; media-src 'self' file:; font-src https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
+<title>SoundBoard by suyfoo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0a0f;
+    --bg-panel: #111119;
+    --bg-card: #191926;
+    --bg-card-hover: #212136;
+    --border: #28283e;
+    --border-glow: #3a3a5e;
+    --text-primary: #e8e8f0;
+    --text-secondary: #8888a8;
+    --text-muted: #55556a;
+    --accent: #7c5cfc;
+    --accent-glow: #9d7fff;
+    --accent-dim: #5a3ed4;
+    --danger: #ff4466;
+    --success: #44ffaa;
+    --warning: #ffaa44;
+    --neon-pink: #ff2d7b;
+    --neon-blue: #2dd4ff;
+    --neon-green: #2dff88;
+    --neon-yellow: #ffe02d;
+    --neon-purple: #b02dff;
+    --neon-orange: #ff6b2d;
+    --neon-cyan: #2dffea;
+    --neon-red: #ff3d3d;
+    --sidebar-w: 250px;
+    --titlebar-h: 38px;
+    --topbar-h: 56px;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-glow); }
+
+  /* ========== CUSTOM TITLE BAR ========== */
+  .titlebar {
+    height: var(--titlebar-h);
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    -webkit-app-region: drag;
+    padding-left: 14px;
+    position: relative;
+    z-index: 100;
+  }
+
+  .titlebar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .titlebar-title .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(124, 92, 252, 0.5);
+  }
+
+  .titlebar-btns {
+    display: flex;
+    -webkit-app-region: no-drag;
+    height: 100%;
+  }
+
+  .titlebar-btns button {
+    width: 46px;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s, color 0.1s;
+  }
+
+  .titlebar-btns button:hover { background: var(--bg-card); color: var(--text-primary); }
+  .titlebar-btns button.close-btn:hover { background: var(--danger); color: white; }
+
+  /* ========== LAYOUT ========== */
+  .app { display: flex; height: calc(100vh - var(--titlebar-h)); }
+
+  /* ========== SIDEBAR ========== */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 18px 18px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .sidebar-logo .logo-icon {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--neon-pink));
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    box-shadow: 0 0 18px rgba(124, 92, 252, 0.3);
+  }
+
+  .sidebar-logo h1 {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--text-primary), var(--accent-glow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sidebar-logo .brand-sub {
+    font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-muted); margin-top: -1px;
+  }
+
+  .sidebar-section {
+    padding: 14px 12px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-section span {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+  }
+
+  .sidebar-section button {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .sidebar-section button:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .categories-list { flex: 1; overflow-y: auto; padding: 4px 8px; }
+
+  .category-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.12s;
+    margin-bottom: 1px;
+    position: relative;
+    border: 1px solid transparent;
+  }
+  .category-item:hover { background: var(--bg-card); }
+  .category-item.active { background: rgba(124, 92, 252, 0.12); border-color: rgba(124, 92, 252, 0.25); }
+
+  .category-item .cat-emoji { font-size: 17px; }
+  .category-item .cat-name { font-size: 13px; font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .category-item .cat-count {
+    font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-deep); padding: 2px 6px; border-radius: 10px;
+  }
+
+  .category-item .cat-actions { display: none; gap: 2px; position: absolute; right: 6px; }
+  .category-item:hover .cat-actions { display: flex; }
+  .category-item:hover .cat-count { display: none; }
+
+  .cat-actions button {
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    width: 20px; height: 20px; border-radius: 4px; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cat-actions button:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+  .cat-actions button.delete:hover { color: var(--danger); }
+
+  /* ========== SIDEBAR BOTTOM ========== */
+  .sidebar-bottom { padding: 14px 14px; border-top: 1px solid var(--border); }
+
+  .master-volume { display: flex; align-items: center; gap: 9px; }
+  .master-volume .vol-icon { font-size: 15px; color: var(--text-secondary); }
+  .master-volume .vol-label { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; min-width: 28px; text-align: right; }
+
+  /* ========== OUTPUT DEVICE SELECTOR ========== */
+  .output-device { margin-top: 12px; }
+  .output-device .device-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+  }
+  .output-device .device-label .refresh-btn {
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 12px; padding: 2px; border-radius: 3px; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .output-device .device-label .refresh-btn:hover { color: var(--accent); }
+  .output-device select {
+    width: 100%; padding: 7px 8px; background: var(--bg-deep); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text-primary); font-family: 'Outfit', sans-serif;
+    font-size: 11.5px; outline: none; cursor: pointer; transition: border-color 0.2s;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2355556a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+  }
+  .output-device select:focus { border-color: var(--accent); }
+  .output-device select option { background: var(--bg-panel); color: var(--text-primary); }
+  .output-device .device-status {
+    font-size: 10px; margin-top: 5px; display: flex; align-items: center; gap: 5px; color: var(--text-muted);
+  }
+  .output-device .device-status .status-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green);
+    box-shadow: 0 0 6px rgba(45, 255, 136, 0.4);
+  }
+
+  /* ========== MIC PASSTHROUGH ========== */
+  .mic-section { margin-top: 12px; }
+  .mic-section .mic-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+  }
+  .mic-section .mic-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-muted); display: flex; align-items: center; gap: 6px;
+  }
+  .mic-toggle {
+    position: relative; width: 36px; height: 20px; cursor: pointer;
+  }
+  .mic-toggle input { opacity: 0; width: 0; height: 0; }
+  .mic-toggle .toggle-track {
+    position: absolute; inset: 0; background: var(--border); border-radius: 10px;
+    transition: background 0.25s;
+  }
+  .mic-toggle .toggle-thumb {
+    position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+    background: var(--text-muted); border-radius: 50%; transition: all 0.25s;
+  }
+  .mic-toggle input:checked + .toggle-track { background: var(--neon-green); box-shadow: 0 0 10px rgba(45, 255, 136, 0.3); }
+  .mic-toggle input:checked + .toggle-track .toggle-thumb {
+    left: 18px; background: white;
+  }
+  .mic-section select {
+    width: 100%; padding: 7px 8px; background: var(--bg-deep); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text-primary); font-family: 'Outfit', sans-serif;
+    font-size: 11.5px; outline: none; cursor: pointer; transition: border-color 0.2s;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2355556a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+  }
+  .mic-section select:focus { border-color: var(--accent); }
+  .mic-section select option { background: var(--bg-panel); color: var(--text-primary); }
+  .mic-volume { display: flex; align-items: center; gap: 7px; margin-top: 6px; }
+  .mic-volume .mic-vol-icon { font-size: 13px; color: var(--text-secondary); }
+  .mic-volume .mic-vol-label { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; min-width: 26px; text-align: right; }
+  .mic-meter {
+    margin-top: 6px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .mic-meter .mic-meter-fill {
+    height: 100%; width: 0%; background: var(--neon-green); border-radius: 2px;
+    transition: width 0.05s; box-shadow: 0 0 6px rgba(45, 255, 136, 0.3);
+  }
+  .mic-status {
+    font-size: 10px; margin-top: 5px; color: var(--text-muted); display: flex; align-items: center; gap: 5px;
+  }
+  .mic-status .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+
+  /* ========== MONITOR SECTION ========== */
+  .monitor-section { margin-top: 12px; }
+  .monitor-section .monitor-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+  }
+  .monitor-section .monitor-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-muted); display: flex; align-items: center; gap: 6px;
+  }
+  .monitor-section select {
+    width: 100%; padding: 7px 8px; background: var(--bg-deep); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text-primary); font-family: 'Outfit', sans-serif;
+    font-size: 11.5px; outline: none; cursor: pointer; transition: border-color 0.2s;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2355556a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+  }
+  .monitor-section select:focus { border-color: var(--accent); }
+  .monitor-section select option { background: var(--bg-panel); color: var(--text-primary); }
+  .monitor-section .monitor-status {
+    font-size: 10px; margin-top: 5px; color: var(--text-muted); display: flex; align-items: center; gap: 5px;
+  }
+  .monitor-section .monitor-status .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+
+  /* ========== RANGE SLIDER ========== */
+  input[type="range"] {
+    -webkit-appearance: none; flex: 1; height: 4px; border-radius: 2px;
+    background: var(--border); outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 8px rgba(124, 92, 252, 0.4);
+    cursor: pointer; transition: transform 0.15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  /* ========== MAIN ========== */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ========== TOP BAR ========== */
+  .topbar {
+    height: var(--topbar-h);
+    min-height: var(--topbar-h);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 14px;
+    background: var(--bg-panel);
+  }
+
+  .search-box { flex: 1; max-width: 360px; position: relative; }
+  .search-box input {
+    width: 100%; padding: 8px 12px 8px 34px; background: var(--bg-deep);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 13px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-box .search-icon {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); font-size: 13px; pointer-events: none;
+  }
+
+  .topbar-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+  .btn {
+    padding: 7px 14px; border-radius: var(--radius-sm); border: none; cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: 12.5px; font-weight: 500;
+    display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: white; box-shadow: 0 0 14px rgba(124, 92, 252, 0.25); }
+  .btn-primary:hover { background: var(--accent-glow); box-shadow: 0 0 22px rgba(124, 92, 252, 0.4); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--bg-card); color: var(--text-primary); }
+
+  /* ========== SOUNDS GRID ========== */
+  .sounds-area { flex: 1; overflow-y: auto; padding: 20px; }
+
+  .sounds-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .sounds-header h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .sounds-header .sound-count { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  .sounds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  /* ========== SOUND PAD ========== */
+  .sound-pad {
+    position: relative; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 12px 10px; cursor: pointer;
+    transition: all 0.15s; display: flex; flex-direction: column; align-items: center;
+    gap: 6px; min-height: 130px; overflow: hidden;
+  }
+  .sound-pad::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--pad-color, var(--accent)); opacity: 0.6; transition: all 0.2s;
+  }
+  .sound-pad:hover {
+    border-color: var(--border-glow); transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(124, 92, 252, 0.08);
+  }
+  .sound-pad:hover::before { opacity: 1; }
+  .sound-pad.playing { border-color: var(--pad-color, var(--accent)); box-shadow: 0 0 28px color-mix(in srgb, var(--pad-color, var(--accent)) 25%, transparent); }
+  .sound-pad.playing::before { opacity: 1; height: 3px; }
+
+  .sound-pad .pad-emoji { font-size: 30px; margin-top: 2px; transition: transform 0.15s; }
+  .sound-pad:hover .pad-emoji { transform: scale(1.08); }
+  .sound-pad.playing .pad-emoji { animation: padBounce 0.5s ease infinite alternate; }
+  @keyframes padBounce { from { transform: scale(1); } to { transform: scale(1.12); } }
+
+  .sound-pad .pad-name {
+    font-size: 12px; font-weight: 500; text-align: center; color: var(--text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+  }
+  .sound-pad .pad-shortcut {
+    position: absolute; top: 9px; right: 9px; font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600; color: var(--text-muted); background: var(--bg-deep);
+    padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border); text-transform: uppercase;
+  }
+  .sound-pad .pad-duration { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  .sound-pad .pad-volume { width: 100%; padding: 0 4px; opacity: 0; transition: opacity 0.15s; }
+  .sound-pad:hover .pad-volume { opacity: 1; }
+  .sound-pad .pad-volume input[type="range"] { height: 3px; }
+
+  .sound-pad .pad-menu-btn {
+    position: absolute; top: 7px; left: 7px; background: none; border: none;
+    color: var(--text-muted); cursor: pointer; font-size: 13px; width: 20px; height: 20px;
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: all 0.15s;
+  }
+  .sound-pad:hover .pad-menu-btn { opacity: 1; }
+  .sound-pad .pad-menu-btn:hover { background: var(--bg-deep); color: var(--text-primary); }
+
+  /* ========== ADD PAD ========== */
+  .add-pad {
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; min-height: 130px; cursor: pointer; transition: all 0.2s; color: var(--text-muted);
+  }
+  .add-pad:hover { border-color: var(--accent); background: rgba(124, 92, 252, 0.05); color: var(--accent-glow); }
+  .add-pad .add-icon { font-size: 26px; }
+  .add-pad .add-text { font-size: 11px; font-weight: 500; }
+
+  /* ========== EMPTY STATE ========== */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 70px 20px; color: var(--text-muted); gap: 14px;
+  }
+  .empty-state .empty-icon { font-size: 50px; opacity: 0.5; }
+  .empty-state h3 { font-size: 17px; font-weight: 600; color: var(--text-secondary); }
+  .empty-state p { font-size: 13px; max-width: 280px; text-align: center; line-height: 1.6; }
+
+  /* ========== CONTEXT MENU ========== */
+  .context-menu {
+    position: fixed; background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 5px; min-width: 170px; z-index: 1000;
+    box-shadow: 0 10px 36px rgba(0,0,0,0.5); display: none;
+  }
+  .context-menu.visible { display: block; }
+  .context-menu button {
+    display: flex; align-items: center; gap: 9px; width: 100%; padding: 7px 11px;
+    background: none; border: none; color: var(--text-primary); font-family: 'Outfit', sans-serif;
+    font-size: 12.5px; cursor: pointer; border-radius: 5px; transition: background 0.1s;
+  }
+  .context-menu button:hover { background: var(--bg-card); }
+  .context-menu button.danger { color: var(--danger); }
+  .context-menu button.danger:hover { background: rgba(255,68,102,0.1); }
+  .context-menu .divider { height: 1px; background: var(--border); margin: 3px 7px; }
+
+  /* ========== MODAL ========== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    z-index: 900; display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+
+  .modal {
+    background: var(--bg-panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 24px; min-width: 360px; max-width: 420px;
+    box-shadow: 0 20px 56px rgba(0,0,0,0.5);
+  }
+  .modal.modal-wide { min-width: 520px; max-width: 600px; }
+
+  /* ========== SHORTCUTS MANAGER ========== */
+  .shortcuts-list { max-height: 400px; overflow-y: auto; margin: 0 -4px; }
+  .shortcut-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    border-radius: var(--radius-sm); transition: background 0.1s; margin-bottom: 2px;
+  }
+  .shortcut-row:hover { background: var(--bg-card); }
+  .shortcut-row .sr-color {
+    width: 4px; height: 32px; border-radius: 2px; flex-shrink: 0;
+  }
+  .shortcut-row .sr-emoji { font-size: 20px; flex-shrink: 0; }
+  .shortcut-row .sr-info { flex: 1; min-width: 0; }
+  .shortcut-row .sr-name {
+    font-size: 13px; font-weight: 500; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .shortcut-row .sr-category { font-size: 10px; color: var(--text-muted); }
+  .shortcut-row .sr-key-btn {
+    display: flex; align-items: center; justify-content: center;
+    min-width: 40px; height: 32px; padding: 0 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+    background: var(--bg-deep); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text-secondary); cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+  }
+  .shortcut-row .sr-key-btn:hover { border-color: var(--accent); color: var(--accent-glow); }
+  .shortcut-row .sr-key-btn.listening {
+    border-color: var(--accent); color: var(--accent);
+    animation: keyPulse 1s ease infinite;
+  }
+  .shortcut-row .sr-key-btn.unset { color: var(--text-muted); font-size: 11px; font-weight: 400; font-family: 'Outfit', sans-serif; }
+  .shortcut-row .sr-key-btn.special { font-size: 11px; }
+  .shortcut-row .sr-clear {
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 14px; width: 24px; height: 24px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.15s; opacity: 0;
+  }
+  .shortcut-row:hover .sr-clear { opacity: 1; }
+  .shortcut-row .sr-clear:hover { color: var(--danger); background: rgba(255,68,102,0.1); }
+  @keyframes keyPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.3); } 50% { box-shadow: 0 0 0 4px rgba(124,92,252,0.1); } }
+  .shortcuts-empty {
+    text-align: center; padding: 30px 0; color: var(--text-muted); font-size: 13px;
+  }
+  .shortcuts-search {
+    width: 100%; padding: 8px 11px; background: var(--bg-deep); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text-primary); font-family: 'Outfit', sans-serif;
+    font-size: 13px; outline: none; margin-bottom: 12px; transition: border-color 0.2s;
+  }
+  .shortcuts-search:focus { border-color: var(--accent); }
+  .shortcuts-search::placeholder { color: var(--text-muted); }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 18px; display: flex; align-items: center; gap: 9px; }
+  .modal label { display: block; font-size: 11.5px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; margin-top: 12px; }
+  .modal label:first-of-type { margin-top: 0; }
+  .modal input[type="text"], .modal select {
+    width: 100%; padding: 8px 11px; background: var(--bg-deep); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text-primary); font-family: 'Outfit', sans-serif;
+    font-size: 13px; outline: none; transition: border-color 0.2s;
+  }
+  .modal input[type="text"]:focus, .modal select:focus { border-color: var(--accent); }
+
+  .modal .color-picker-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 4px; }
+  .modal .color-swatch {
+    width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.15s;
+  }
+  .modal .color-swatch:hover { transform: scale(1.1); }
+  .modal .color-swatch.selected { border-color: white; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+  .modal .emoji-picker-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+  .modal .emoji-option {
+    width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; border-radius: 7px; cursor: pointer; border: 2px solid transparent;
+    background: var(--bg-card); transition: all 0.15s;
+  }
+  .modal .emoji-option:hover { background: var(--bg-card-hover); transform: scale(1.1); }
+  .modal .emoji-option.selected { border-color: var(--accent); background: rgba(124, 92, 252, 0.15); }
+
+  .modal .modal-actions { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
+
+  /* ========== WAVE BARS ========== */
+  .wave-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+  .wave-bars span { width: 3px; background: var(--pad-color, var(--accent)); border-radius: 1px; animation: waveBar 0.6s ease-in-out infinite alternate; }
+  .wave-bars span:nth-child(1) { height: 5px; animation-delay: 0s; }
+  .wave-bars span:nth-child(2) { height: 9px; animation-delay: 0.15s; }
+  .wave-bars span:nth-child(3) { height: 4px; animation-delay: 0.3s; }
+  .wave-bars span:nth-child(4) { height: 11px; animation-delay: 0.1s; }
+  @keyframes waveBar { from { transform: scaleY(0.4); } to { transform: scaleY(1); } }
+
+  /* ========== TOAST ========== */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 6px; }
+  .toast {
+    background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 16px; font-size: 12.5px; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    display: flex; align-items: center; gap: 8px; animation: toastIn 0.3s ease; max-width: 300px;
+  }
+  .toast.leaving { animation: toastOut 0.3s ease forwards; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(8px) scale(0.95); } }
+
+  /* ========== KBD OVERLAY ========== */
+  .kbd-overlay {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 8px 18px; font-size: 11px; color: var(--text-muted); z-index: 50;
+    display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  }
+  .kbd-overlay kbd {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; background: var(--bg-deep);
+    padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border); color: var(--text-secondary);
+  }
+
+  /* ========== PAD SIZES ========== */
+  .sounds-grid.grid-sm { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+  .sounds-grid.grid-sm .sound-pad { min-height: 100px; padding: 10px 8px 8px; }
+  .sounds-grid.grid-sm .sound-pad .pad-emoji { font-size: 22px; }
+  .sounds-grid.grid-sm .sound-pad .pad-name { font-size: 10px; }
+  .sounds-grid.grid-md { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .sounds-grid.grid-lg { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+  .sounds-grid.grid-lg .sound-pad { min-height: 160px; padding: 18px 14px 14px; }
+  .sounds-grid.grid-lg .sound-pad .pad-emoji { font-size: 38px; }
+
+  /* ========== FAVORITE STAR ========== */
+  .sound-pad .pad-fav {
+    position: absolute; top: 7px; left: 7px; background: none; border: none;
+    cursor: pointer; font-size: 14px; width: 20px; height: 20px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: all 0.15s; z-index: 2;
+  }
+  .sound-pad:hover .pad-fav { opacity: 0.7; }
+  .sound-pad .pad-fav:hover { opacity: 1 !important; transform: scale(1.2); }
+  .sound-pad .pad-fav.is-fav { opacity: 1; color: var(--neon-yellow); }
+
+  /* ========== DRAG ========== */
+  .sound-pad.dragging { opacity: 0.4; transform: scale(0.95); }
+  .sound-pad.drag-over-pad { border-color: var(--accent) !important; box-shadow: 0 0 20px rgba(124,92,252,0.3); }
+
+  /* ========== PLAY MODE INDICATOR ========== */
+  .play-mode-btn .mode-dot {
+    width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+  }
+  .play-mode-btn .mode-dot.overlap { background: var(--neon-green); box-shadow: 0 0 6px rgba(45,255,136,0.4); }
+  .play-mode-btn .mode-dot.cut { background: var(--neon-orange); box-shadow: 0 0 6px rgba(255,107,45,0.4); }
+
+  /* ========== HOVER PREVIEW PULSE ========== */
+  .sound-pad.previewing { border-color: rgba(124,92,252,0.4); }
+  .sound-pad.previewing .pad-emoji { animation: previewPulse 0.8s ease infinite; }
+  @keyframes previewPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* ========== TOPBAR DROPDOWN ========== */
+  .topbar-menu { position: relative; }
+  .topbar-dropdown {
+    position: absolute; top: 100%; right: 0; margin-top: 6px;
+    background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 5px; min-width: 180px; z-index: 500; box-shadow: 0 10px 36px rgba(0,0,0,0.5);
+    display: none;
+  }
+  .topbar-dropdown.visible { display: block; }
+  .topbar-dropdown button {
+    display: flex; align-items: center; gap: 9px; width: 100%; padding: 7px 11px;
+    background: none; border: none; color: var(--text-primary); font-family: 'Outfit', sans-serif;
+    font-size: 12.5px; cursor: pointer; border-radius: 5px; transition: background 0.1s;
+  }
+  .topbar-dropdown button:hover { background: var(--bg-card); }
+  .topbar-dropdown .divider { height: 1px; background: var(--border); margin: 3px 7px; }
+
+</style>
+</head>
+<body>
+
+<!-- CUSTOM TITLE BAR -->
+<div class="titlebar">
+  <div class="titlebar-title">
+    <span class="dot"></span>
+    SOUNDBOARD <span style="opacity:0.35;margin-left:2px;font-weight:400;">by suyfoo</span>
+  </div>
+  <div class="titlebar-btns">
+    <button onclick="electronAPI.minimize()">─</button>
+    <button onclick="electronAPI.maximize()">☐</button>
+    <button class="close-btn" onclick="electronAPI.close()">✕</button>
+  </div>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🎛️</div>
+      <div>
+        <h1>SoundBoard</h1>
+        <div class="brand-sub">by suyfoo</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <span>Categories</span>
+      <button onclick="showAddCategoryModal()" title="Add category">+</button>
+    </div>
+    <div class="categories-list" id="categoriesList"></div>
+    <div class="sidebar-bottom">
+      <div class="master-volume">
+        <span class="vol-icon">🔊</span>
+        <input type="range" id="masterVolume" min="0" max="100" value="100" oninput="setMasterVolume(this.value)">
+        <span class="vol-label" id="masterVolumeLabel">100</span>
+      </div>
+      <div class="output-device">
+        <div class="device-label">
+          <span>🎧 Output Device</span>
+          <button class="refresh-btn" onclick="loadAudioDevices()" title="Refresh devices">🔄</button>
+        </div>
+        <select id="outputDeviceSelect" onchange="setOutputDevice(this.value)"></select>
+        <div class="device-status" id="deviceStatus">
+          <span class="status-dot"></span>
+          <span>Default output</span>
+        </div>
+      </div>
+      <div class="mic-section">
+        <div class="mic-header">
+          <span class="mic-label">🎤 Mic Passthrough</span>
+          <label class="mic-toggle">
+            <input type="checkbox" id="micToggle" onchange="toggleMic(this.checked)">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+        <select id="micInputSelect" onchange="changeMicDevice(this.value)"></select>
+        <div class="mic-volume">
+          <span class="mic-vol-icon">🎤</span>
+          <input type="range" id="micVolume" min="0" max="150" value="100" oninput="setMicVolume(this.value)">
+          <span class="mic-vol-label" id="micVolumeLabel">100</span>
+        </div>
+        <div class="mic-meter"><div class="mic-meter-fill" id="micMeterFill"></div></div>
+        <div class="mic-status" id="micStatus">
+          <span class="status-dot" style="background:var(--text-muted)"></span>
+          <span>Off</span>
+        </div>
+      </div>
+      <div class="monitor-section">
+        <div class="monitor-header">
+          <span class="monitor-label">🔉 Monitor (Hear SFX)</span>
+          <label class="mic-toggle">
+            <input type="checkbox" id="monitorToggle" onchange="toggleMonitor(this.checked)">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          </label>
+        </div>
+        <select id="monitorDeviceSelect" onchange="setMonitorDevice(this.value)"></select>
+        <div class="monitor-status" id="monitorStatus">
+          <span class="status-dot" style="background:var(--text-muted)"></span>
+          <span>Off — sounds go to output only</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search sounds..." oninput="renderSounds()">
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost play-mode-btn" onclick="togglePlayMode()" title="Toggle overlap/cut mode">
+          <span class="mode-dot overlap" id="playModeDot"></span> <span id="playModeLabel">Overlap</span>
+        </button>
+        <button class="btn btn-ghost" onclick="playRandomSound()" title="Play random sound from category">🎲 Random</button>
+        <button class="btn btn-ghost" onclick="cyclePadSize()" title="Change pad size" id="padSizeBtn">▦ Medium</button>
+        <button class="btn btn-ghost" onclick="showShortcutsManager()">⌨️ Shortcuts</button>
+        <button class="btn btn-ghost" onclick="stopAll()">⏹ Stop All</button>
+        <div class="topbar-menu">
+          <button class="btn btn-ghost" onclick="toggleTopbarMenu(event)">⋯</button>
+          <div class="topbar-dropdown" id="topbarDropdown">
+            <button onclick="exportSoundboard()">📤 Export Soundboard</button>
+            <button onclick="importSoundboard()">📥 Import Soundboard</button>
+            <div class="divider"></div>
+            <button onclick="showStopAllShortcutModal()">🛑 Set Stop All Hotkey</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="uploadFiles()">＋ Add Sound</button>
+      </div>
+    </div>
+    <div class="sounds-area" id="soundsArea"></div>
+  </div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div class="context-menu" id="contextMenu"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- KBD HINT -->
+<div class="kbd-overlay">
+  <span>Global hotkeys — works even when minimized</span>
+  <span><kbd>Esc</kbd> Close menus</span>
+  <span style="margin-left:auto;opacity:0.4;">suyfoo.com</span>
+</div>
+
+<script>
+// ============================
+// CONSTANTS
+// ============================
+const COLORS = [
+  '#7c5cfc','#ff2d7b','#2dd4ff','#2dff88','#ffe02d',
+  '#b02dff','#ff6b2d','#2dffea','#ff3d3d','#ff8a5c','#5caafc','#fc5c9e'
+];
+const EMOJIS = [
+  '🔊','🎵','🎶','🎤','🎸','🥁','🎹','🎺','🎻','🎷',
+  '💥','😂','👏','🔔','⚡','🎮','🚀','💀','🐸','😱',
+  '🤖','👾','🌊','🔥','❄️','🎯','🍕','🎉','📢','💬','⭐','🌈'
+];
+
+// ============================
+// STATE
+// ============================
+let state = {
+  categories: [],
+  sounds: [],         // each: { id, name, emoji, color, volume, shortcut, category, duration, fileName }
+  activeCategory: 'all',
+  masterVolume: 100
+};
+
+let audioElements = {};  // id -> Audio
+let audioPaths = {};     // id -> resolved file:// path
+let selectedOutputDeviceId = '';  // '' = default system output
+let audioDevices = [];
+
+// ============================
+// KEY MAPPING UTILITIES
+// ============================
+// Maps a DOM KeyboardEvent to an Electron accelerator string
+function keyEventToAccelerator(e) {
+  const key = e.key;
+  const code = e.code;
+
+  // F keys
+  if (/^F(\d+)$/.test(key)) return key;
+
+  // Special keys
+  const specialMap = {
+    'PageUp': 'PageUp', 'PageDown': 'PageDown',
+    'Home': 'Home', 'End': 'End',
+    'Insert': 'Insert', 'Delete': 'Delete',
+    'ArrowUp': 'Up', 'ArrowDown': 'Down',
+    'ArrowLeft': 'Left', 'ArrowRight': 'Right',
+    'Backspace': 'Backspace',
+    '-': '-', '=': '=', '[': '[', ']': ']',
+    ';': ';', "'": "'", ',': ',', '.': '.', '/': '/',
+    '`': '`', '\\': '\\',
+  };
+  if (specialMap[key]) return specialMap[key];
+
+  // Numpad
+  if (code.startsWith('Numpad')) {
+    const numKey = code.replace('Numpad', '');
+    if (/^\d$/.test(numKey)) return 'num' + numKey;
+    const numpadMap = { 'Decimal': 'numdec', 'Add': 'numadd', 'Subtract': 'numsub', 'Multiply': 'nummult', 'Divide': 'numdiv' };
+    if (numpadMap[numKey]) return numpadMap[numKey];
+  }
+
+  // Regular alphanumeric
+  if (/^[a-zA-Z]$/.test(key)) return key.toUpperCase();
+  if (/^[0-9]$/.test(key)) return key;
+
+  return null; // Unsupported key
+}
+
+// Makes a pretty display name from an accelerator string
+function acceleratorToDisplay(accel) {
+  if (!accel) return '';
+  const displayMap = {
+    'PageUp': 'PgUp', 'PageDown': 'PgDn',
+    'Delete': 'Del', 'Insert': 'Ins', 'Backspace': 'Bksp',
+    'Up': '↑', 'Down': '↓', 'Left': '←', 'Right': '→',
+    'numadd': 'Num+', 'numsub': 'Num-', 'nummult': 'Num*', 'numdiv': 'Num/', 'numdec': 'Num.',
+  };
+  if (displayMap[accel]) return displayMap[accel];
+  if (/^num\d$/.test(accel)) return 'Num' + accel.slice(3);
+  return accel;
+}
+
+// Check if a key is valid for shortcuts (reject modifiers, etc)
+function isValidShortcutKey(e) {
+  const ignore = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab', 'Escape', 'Enter', ' ',
+                  'NumLock', 'ScrollLock', 'ContextMenu', 'PrintScreen', 'Pause'];
+  return !ignore.includes(e.key);
+}
+
+// ============================
+// GLOBAL SHORTCUT MANAGEMENT
+// ============================
+async function registerAllGlobalShortcuts() {
+  // First unregister everything
+  await window.electronAPI.unregisterAllShortcuts();
+
+  // Register each sound's shortcut
+  for (const sound of state.sounds) {
+    if (sound.shortcut) {
+      const ok = await window.electronAPI.registerGlobalShortcut(sound.shortcut, sound.id);
+      if (!ok) console.warn(`Could not register global shortcut: ${sound.shortcut}`);
+    }
+  }
+}
+
+async function registerSingleShortcut(soundId, accelerator) {
+  if (!accelerator) return;
+  const ok = await window.electronAPI.registerGlobalShortcut(accelerator, soundId);
+  if (!ok) {
+    toast(`Key "${acceleratorToDisplay(accelerator)}" unavailable`, '⚠️');
+  }
+}
+
+async function unregisterSingleShortcut(accelerator) {
+  if (!accelerator) return;
+  await window.electronAPI.unregisterGlobalShortcut(accelerator);
+}
+
+// Listen for global shortcut triggers from main process
+window.electronAPI.onGlobalShortcutTriggered((soundId) => {
+  togglePlay(soundId);
+});
+
+window.electronAPI.onGlobalStopAll(() => {
+  stopAll();
+});
+
+// ============================
+// MIC PASSTHROUGH STATE
+// ============================
+let micStream = null;
+let micAudioCtx = null;
+let micSourceNode = null;
+let micGainNode = null;
+let micAnalyser = null;
+let micDestination = null;  // MediaStreamAudioDestinationNode
+let micOutputAudio = null;  // Hidden <audio> element to play the mixed output
+let micEnabled = false;
+let selectedMicDeviceId = '';
+let micMeterRAF = null;
+
+// ============================
+// MONITOR STATE
+// ============================
+let monitorEnabled = false;
+let monitorDeviceId = '';  // device to hear sounds on yourself
+let monitorAudioElements = {};  // id -> Audio (mirror copies for monitoring)
+
+// QOL feature state
+let hoverPreviewAudio = null;
+let hoverPreviewTimeout = null;
+let dragSrcId = null;
+
+// ============================
+// PERSISTENCE (via Electron IPC)
+// ============================
+async function save() {
+  await window.electronAPI.saveState({
+    categories: state.categories,
+    sounds: state.sounds,
+    activeCategory: state.activeCategory,
+    masterVolume: state.masterVolume,
+    outputDeviceId: state.outputDeviceId || '',
+    micEnabled: state.micEnabled || false,
+    micDeviceId: state.micDeviceId || '',
+    micVolume: state.micVolume ?? 100,
+    monitorEnabled: state.monitorEnabled || false,
+    monitorDeviceId: state.monitorDeviceId || '',
+    playMode: state.playMode || 'overlap',
+    padSize: state.padSize || 'md',
+    stopAllShortcut: state.stopAllShortcut || '',
+  });
+}
+
+async function loadData() {
+  const data = await window.electronAPI.loadState();
+  if (data) {
+    state = { ...state, ...data };
+    document.getElementById('masterVolume').value = state.masterVolume;
+    document.getElementById('masterVolumeLabel').textContent = state.masterVolume;
+  }
+
+  if (state.categories.length === 0) {
+    state.categories = [
+      { id: 'all', name: 'All Sounds', emoji: '🎵', system: true },
+      { id: 'memes', name: 'Memes', emoji: '😂' },
+      { id: 'sfx', name: 'Sound Effects', emoji: '💥' },
+      { id: 'music', name: 'Music', emoji: '🎶' },
+    ];
+    await save();
+  }
+
+  // Resolve file paths for all sounds
+  for (const s of state.sounds) {
+    if (s.fileName) {
+      audioPaths[s.id] = await window.electronAPI.getSoundPath(s.fileName);
+    }
+  }
+
+  // Defaults for new QOL features
+  if (!state.playMode) state.playMode = 'overlap';
+  if (!state.padSize) state.padSize = 'md';
+  if (!state.stopAllShortcut) state.stopAllShortcut = '';
+
+  // Restore audio device settings
+  if (state.micVolume !== undefined) {
+    document.getElementById('micVolume').value = state.micVolume;
+    document.getElementById('micVolumeLabel').textContent = state.micVolume;
+  }
+}
+
+// ============================
+// CATEGORIES
+// ============================
+function renderCategories() {
+  const list = document.getElementById('categoriesList');
+  list.innerHTML = state.categories.map(cat => {
+    const count = cat.id === 'all' ? state.sounds.length : state.sounds.filter(s => s.category === cat.id).length;
+    const active = state.activeCategory === cat.id ? 'active' : '';
+    const actions = cat.system ? '' : `
+      <div class="cat-actions">
+        <button onclick="event.stopPropagation(); editCategory('${cat.id}')" title="Edit">✏️</button>
+        <button class="delete" onclick="event.stopPropagation(); deleteCategory('${cat.id}')" title="Delete">🗑️</button>
+      </div>`;
+    return `<div class="category-item ${active}" onclick="selectCategory('${cat.id}')">
+      <span class="cat-emoji">${cat.emoji}</span>
+      <span class="cat-name">${cat.name}</span>
+      <span class="cat-count">${count}</span>
+      ${actions}
+    </div>`;
+  }).join('');
+}
+
+function selectCategory(id) {
+  state.activeCategory = id;
+  renderCategories();
+  renderSounds();
+}
+
+function showAddCategoryModal() {
+  showModal(`
+    <h3>➕ New Category</h3>
+    <label>Name</label>
+    <input type="text" id="catName" placeholder="e.g. Reactions">
+    <label>Emoji</label>
+    <div class="emoji-picker-row" id="catEmojiPicker">
+      ${EMOJIS.slice(0,16).map((e,i) => `<div class="emoji-option ${i===0?'selected':''}" data-emoji="${e}" onclick="pickEmoji(this)">${e}</div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="hideModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addCategory()">Create</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('catName')?.focus(), 100);
+}
+
+async function addCategory() {
+  const name = document.getElementById('catName').value.trim();
+  if (!name) return toast('Please enter a name', '⚠️');
+  const emoji = document.querySelector('#catEmojiPicker .selected')?.dataset.emoji || '📁';
+  state.categories.push({ id: 'cat_' + Date.now(), name, emoji });
+  await save(); renderCategories(); hideModal();
+  toast(`Category "${name}" created`, '✅');
+}
+
+function editCategory(id) {
+  const cat = state.categories.find(c => c.id === id);
+  if (!cat) return;
+  showModal(`
+    <h3>✏️ Edit Category</h3>
+    <label>Name</label>
+    <input type="text" id="catName" value="${cat.name}">
+    <label>Emoji</label>
+    <div class="emoji-picker-row" id="catEmojiPicker">
+      ${EMOJIS.slice(0,16).map(e => `<div class="emoji-option ${e===cat.emoji?'selected':''}" data-emoji="${e}" onclick="pickEmoji(this)">${e}</div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="hideModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="updateCategory('${id}')">Save</button>
+    </div>
+  `);
+}
+
+async function updateCategory(id) {
+  const cat = state.categories.find(c => c.id === id);
+  if (!cat) return;
+  cat.name = document.getElementById('catName').value.trim() || cat.name;
+  cat.emoji = document.querySelector('#catEmojiPicker .selected')?.dataset.emoji || cat.emoji;
+  await save(); renderCategories(); hideModal();
+  toast('Category updated', '✅');
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Delete this category? Sounds will become uncategorized.')) return;
+  state.categories = state.categories.filter(c => c.id !== id);
+  state.sounds.forEach(s => { if (s.category === id) s.category = ''; });
+  if (state.activeCategory === id) state.activeCategory = 'all';
+  await save(); renderCategories(); renderSounds();
+  toast('Category deleted', '🗑️');
+}
+
+// ============================
+// SOUNDS
+// ============================
+function renderSounds() {
+  const area = document.getElementById('soundsArea');
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  let sounds = state.sounds;
+
+  if (state.activeCategory !== 'all') sounds = sounds.filter(s => s.category === state.activeCategory);
+  if (search) sounds = sounds.filter(s => s.name.toLowerCase().includes(search));
+
+  // Favorites first
+  sounds.sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0));
+
+  const catObj = state.categories.find(c => c.id === state.activeCategory);
+  const title = catObj ? catObj.name : 'All Sounds';
+
+  if (state.sounds.length === 0 && !search) {
+    area.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🎧</div>
+      <h3>Your soundboard is empty</h3>
+      <p>Click "Add Sound" to import audio files. Supports MP3, WAV, OGG, WEBM, M4A, FLAC.</p>
+      <button class="btn btn-primary" onclick="uploadFiles()" style="margin-top:8px;">＋ Add Your First Sound</button>
+    </div>`;
+    return;
+  }
+
+  const padsHtml = sounds.map(s => {
+    const playing = audioElements[s.id] && !audioElements[s.id].paused;
+    const wave = playing ? `<div class="wave-bars" style="--pad-color:${s.color}"><span></span><span></span><span></span><span></span></div>` : '';
+    return `<div class="sound-pad ${playing?'playing':''}" style="--pad-color:${s.color}"
+        draggable="true"
+        ondragstart="onPadDragStart(event,'${s.id}')"
+        ondragover="onPadDragOver(event)"
+        ondragenter="event.currentTarget.classList.add('drag-over-pad')"
+        ondragleave="event.currentTarget.classList.remove('drag-over-pad')"
+        ondrop="onPadDrop(event,'${s.id}')"
+        ondragend="onPadDragEnd(event)"
+        onclick="togglePlay('${s.id}')"
+        oncontextmenu="showPadContext(event,'${s.id}')"
+        onmouseenter="startHoverPreview('${s.id}')"
+        onmouseleave="stopHoverPreview()">
+      <button class="pad-fav ${s.favorite?'is-fav':''}" onclick="event.stopPropagation(); toggleFavorite('${s.id}')" title="${s.favorite?'Unpin':'Pin to top'}">${s.favorite?'★':'☆'}</button>
+      ${s.shortcut ? `<span class="pad-shortcut">${acceleratorToDisplay(s.shortcut)}</span>` : ''}
+      <span class="pad-emoji">${s.emoji}</span>
+      <span class="pad-name">${s.name}</span>
+      ${wave}
+      ${!playing ? `<span class="pad-duration">${s.duration || '--:--'}</span>` : ''}
+      <div class="pad-volume">
+        <input type="range" min="0" max="100" value="${s.volume}"
+          onclick="event.stopPropagation()"
+          oninput="event.stopPropagation(); setSoundVolume('${s.id}', this.value)">
+      </div>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="sounds-header">
+      <h2>${title}</h2>
+      <span class="sound-count">${sounds.length} sound${sounds.length !== 1 ? 's' : ''}</span>
+    </div>
+    <div class="sounds-grid grid-${state.padSize || 'md'}">
+      ${padsHtml}
+      <div class="add-pad" onclick="uploadFiles()">
+        <span class="add-icon">＋</span>
+        <span class="add-text">Add Sound</span>
+      </div>
+    </div>`;
+}
+
+function togglePlay(id) {
+  const sound = state.sounds.find(s => s.id === id);
+  if (!sound) return;
+
+  if (audioElements[id] && !audioElements[id].paused) {
+    audioElements[id].pause();
+    audioElements[id].currentTime = 0;
+    // Also stop monitor copy
+    if (monitorAudioElements[id]) {
+      monitorAudioElements[id].pause();
+      monitorAudioElements[id].currentTime = 0;
+    }
+    renderSounds();
+    return;
+  }
+
+  // Cut mode: stop all other sounds before playing
+  if (state.playMode === 'cut') {
+    Object.entries(audioElements).forEach(([oid, a]) => {
+      if (oid !== id) { a.pause(); a.currentTime = 0; }
+    });
+    Object.entries(monitorAudioElements).forEach(([oid, a]) => {
+      if (oid !== id) { a.pause(); a.currentTime = 0; }
+    });
+  }
+
+  const filePath = audioPaths[id];
+  if (!filePath) return toast('Sound file not found', '⚠️');
+  const fileUrl = 'file:///' + filePath.replace(/\\/g, '/');
+  const vol = (sound.volume / 100) * (state.masterVolume / 100);
+
+  const audio = new Audio(fileUrl);
+  audio.volume = vol;
+  audio.onended = () => renderSounds();
+
+  // Route to selected output device (VB-Cable)
+  const playWithDevice = async () => {
+    try {
+      if (selectedOutputDeviceId && audio.setSinkId) {
+        await audio.setSinkId(selectedOutputDeviceId);
+      }
+      await audio.play();
+    } catch(err) {
+      console.error('Playback error:', err);
+      toast('Could not play audio', '⚠️');
+    }
+  };
+
+  playWithDevice();
+  audioElements[id] = audio;
+
+  // Monitor: also play on your headphones/speakers
+  if (monitorEnabled) {
+    const monAudio = new Audio(fileUrl);
+    monAudio.volume = vol;
+    const playMonitor = async () => {
+      try {
+        if (monitorDeviceId && monAudio.setSinkId) {
+          await monAudio.setSinkId(monitorDeviceId);
+        }
+        await monAudio.play();
+      } catch(err) {
+        console.error('Monitor playback error:', err);
+      }
+    };
+    playMonitor();
+    monitorAudioElements[id] = monAudio;
+  }
+
+  renderSounds();
+}
+
+function stopAll() {
+  Object.values(audioElements).forEach(a => { a.pause(); a.currentTime = 0; });
+  Object.values(monitorAudioElements).forEach(a => { a.pause(); a.currentTime = 0; });
+  audioElements = {};
+  monitorAudioElements = {};
+  renderSounds();
+  toast('All sounds stopped', '⏹');
+}
+
+function setSoundVolume(id, vol) {
+  const sound = state.sounds.find(s => s.id === id);
+  if (sound) {
+    sound.volume = parseInt(vol);
+    const computed = (vol / 100) * (state.masterVolume / 100);
+    if (audioElements[id]) audioElements[id].volume = computed;
+    if (monitorAudioElements[id]) monitorAudioElements[id].volume = computed;
+    save();
+  }
+}
+
+function setMasterVolume(vol) {
+  state.masterVolume = parseInt(vol);
+  document.getElementById('masterVolumeLabel').textContent = vol;
+  Object.entries(audioElements).forEach(([id, audio]) => {
+    const sound = state.sounds.find(s => s.id === id);
+    if (sound) audio.volume = (sound.volume / 100) * (state.masterVolume / 100);
+  });
+  Object.entries(monitorAudioElements).forEach(([id, audio]) => {
+    const sound = state.sounds.find(s => s.id === id);
+    if (sound) audio.volume = (sound.volume / 100) * (state.masterVolume / 100);
+  });
+  save();
+}
+
+// ============================
+// FILE IMPORT (via Electron native dialog)
+// ============================
+async function uploadFiles() {
+  const filePaths = await window.electronAPI.openAudioFiles();
+  if (!filePaths || filePaths.length === 0) return;
+
+  for (const fp of filePaths) {
+    await importSoundFile(fp);
+  }
+}
+
+async function importSoundFile(srcPath) {
+  const result = await window.electronAPI.importSound(srcPath);
+  const fullPath = await window.electronAPI.getSoundPath(result.fileName);
+
+  // Get duration
+  const duration = await new Promise(resolve => {
+    const a = new Audio('file:///' + fullPath.replace(/\\/g, '/'));
+    a.onloadedmetadata = () => {
+      const m = Math.floor(a.duration / 60);
+      const s = Math.floor(a.duration % 60).toString().padStart(2, '0');
+      resolve(`${m}:${s}`);
+    };
+    a.onerror = () => resolve('--:--');
+  });
+
+  const usedShortcuts = state.sounds.map(s => s.shortcut);
+  const availKeys = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(k => !usedShortcuts.includes(k));
+
+  const sound = {
+    id: result.id,
+    name: result.originalName,
+    emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    volume: 80,
+    shortcut: availKeys[0] || '',
+    category: state.activeCategory === 'all' ? '' : state.activeCategory,
+    duration,
+    fileName: result.fileName
+  };
+
+  state.sounds.push(sound);
+  audioPaths[sound.id] = fullPath;
+
+  await save();
+  if (sound.shortcut) await registerSingleShortcut(sound.id, sound.shortcut);
+  renderSounds();
+  renderCategories();
+  toast(`"${sound.name}" added!`, '🎵');
+}
+
+// ============================
+// PAD CONTEXT MENU
+// ============================
+function showPadContext(e, id) {
+  e.preventDefault(); e.stopPropagation();
+  const menu = document.getElementById('contextMenu');
+  const catOptions = state.categories.filter(c => !c.system).map(c =>
+    `<button onclick="moveToCategory('${id}','${c.id}')">${c.emoji} ${c.name}</button>`
+  ).join('');
+
+  const sound_ctx = state.sounds.find(s => s.id === id);
+  const favLabel = sound_ctx?.favorite ? '☆ Unpin from top' : '⭐ Pin to top';
+  menu.innerHTML = `
+    <button onclick="toggleFavorite('${id}'); hideContextMenu();">${favLabel}</button>
+    <button onclick="editSound('${id}')">✏️ Edit Sound</button>
+    <button onclick="assignShortcut('${id}')">⌨️ Set Shortcut</button>
+    <div class="divider"></div>
+    ${catOptions ? catOptions + '<div class="divider"></div>' : ''}
+    <button class="danger" onclick="deleteSound('${id}')">🗑️ Delete Sound</button>
+  `;
+  menu.style.left = Math.min(e.clientX, window.innerWidth - 190) + 'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight - 240) + 'px';
+  menu.classList.add('visible');
+}
+
+function hideContextMenu() { document.getElementById('contextMenu').classList.remove('visible'); }
+
+function editSound(id) {
+  hideContextMenu();
+  const sound = state.sounds.find(s => s.id === id);
+  if (!sound) return;
+  showModal(`
+    <h3>✏️ Edit Sound</h3>
+    <label>Name</label>
+    <input type="text" id="sndName" value="${sound.name}">
+    <label>Category</label>
+    <select id="sndCategory">
+      <option value="">None</option>
+      ${state.categories.filter(c => !c.system).map(c =>
+        `<option value="${c.id}" ${sound.category===c.id?'selected':''}>${c.emoji} ${c.name}</option>`
+      ).join('')}
+    </select>
+    <label>Color</label>
+    <div class="color-picker-row">
+      ${COLORS.map(c => `<div class="color-swatch ${c===sound.color?'selected':''}" style="background:${c}" data-color="${c}" onclick="pickColor(this)"></div>`).join('')}
+    </div>
+    <label>Icon</label>
+    <div class="emoji-picker-row" id="sndEmojiPicker">
+      ${EMOJIS.map(e => `<div class="emoji-option ${e===sound.emoji?'selected':''}" data-emoji="${e}" onclick="pickEmoji(this)">${e}</div>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="hideModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSound('${id}')">Save</button>
+    </div>
+  `);
+}
+
+async function saveSound(id) {
+  const sound = state.sounds.find(s => s.id === id);
+  if (!sound) return;
+  sound.name = document.getElementById('sndName').value.trim() || sound.name;
+  sound.category = document.getElementById('sndCategory').value;
+  sound.color = document.querySelector('.color-picker-row .selected')?.dataset.color || sound.color;
+  sound.emoji = document.querySelector('#sndEmojiPicker .selected')?.dataset.emoji || sound.emoji;
+  await save(); renderSounds(); renderCategories(); hideModal();
+  toast('Sound updated', '✅');
+}
+
+async function moveToCategory(soundId, catId) {
+  hideContextMenu();
+  const sound = state.sounds.find(s => s.id === soundId);
+  if (sound) {
+    sound.category = catId;
+    await save(); renderSounds(); renderCategories();
+    const cat = state.categories.find(c => c.id === catId);
+    toast(`Moved to ${cat?.name}`, '📂');
+  }
+}
+
+async function deleteSound(id) {
+  hideContextMenu();
+  const sound = state.sounds.find(s => s.id === id);
+  if (!sound) return;
+  if (!confirm(`Delete "${sound.name}"?`)) return;
+  if (audioElements[id]) { audioElements[id].pause(); delete audioElements[id]; }
+  if (sound.shortcut) await unregisterSingleShortcut(sound.shortcut);
+  if (sound.fileName) await window.electronAPI.deleteSoundFile(sound.fileName);
+  state.sounds = state.sounds.filter(s => s.id !== id);
+  delete audioPaths[id];
+  await save(); renderSounds(); renderCategories();
+  toast('Sound deleted', '🗑️');
+}
+
+function assignShortcut(id) {
+  hideContextMenu();
+  const sound = state.sounds.find(s => s.id === id);
+  if (!sound) return;
+  showModal(`
+    <h3>⌨️ Set Keyboard Shortcut</h3>
+    <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">
+      Press any key for <strong>${sound.name}</strong>.<br>
+      Supports A-Z, 0-9, F1-F12, PgUp, PgDn, arrows, numpad, and more.<br>
+      Current: <kbd style="font-family:'JetBrains Mono';background:var(--bg-deep);padding:2px 7px;border-radius:4px;border:1px solid var(--border);">${acceleratorToDisplay(sound.shortcut) || 'None'}</kbd>
+    </p>
+    <div id="shortcutCapture" style="text-align:center;padding:28px;background:var(--bg-deep);border-radius:10px;border:2px dashed var(--border);font-size:26px;font-family:'JetBrains Mono';color:var(--accent);">
+      Press a key...
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="clearShortcut('${id}')">Remove</button>
+      <button class="btn btn-ghost" onclick="hideModal()">Cancel</button>
+    </div>
+  `);
+  const handler = async (e) => {
+    if (!isValidShortcutKey(e)) return;
+    e.preventDefault();
+    const accel = keyEventToAccelerator(e);
+    if (!accel) return;
+
+    // Unregister old shortcut from other sounds
+    for (const s of state.sounds) {
+      if (s.shortcut === accel && s.id !== id) {
+        await unregisterSingleShortcut(s.shortcut);
+        s.shortcut = '';
+      }
+    }
+    // Unregister this sound's old shortcut
+    if (sound.shortcut) await unregisterSingleShortcut(sound.shortcut);
+
+    sound.shortcut = accel;
+    await save();
+    await registerSingleShortcut(id, accel);
+    renderSounds();
+
+    document.getElementById('shortcutCapture').textContent = acceleratorToDisplay(accel);
+    document.getElementById('shortcutCapture').style.borderColor = 'var(--accent)';
+    document.getElementById('shortcutCapture').style.color = 'var(--neon-green)';
+    document.removeEventListener('keydown', handler);
+    setTimeout(() => { hideModal(); toast(`Shortcut set to "${acceleratorToDisplay(accel)}"`, '⌨️'); }, 400);
+  };
+  document.addEventListener('keydown', handler);
+  document.getElementById('modalOverlay')._cleanup = () => document.removeEventListener('keydown', handler);
+}
+
+async function clearShortcut(id) {
+  const sound = state.sounds.find(s => s.id === id);
+  if (sound) {
+    if (sound.shortcut) await unregisterSingleShortcut(sound.shortcut);
+    sound.shortcut = '';
+    await save(); renderSounds();
+  }
+  hideModal(); toast('Shortcut removed', '⌨️');
+}
+
+// ============================
+// SHORTCUTS MANAGER
+// ============================
+let shortcutsListeningId = null;
+let shortcutsKeyHandler = null;
+
+function showShortcutsManager() {
+  shortcutsListeningId = null;
+  if (shortcutsKeyHandler) { document.removeEventListener('keydown', shortcutsKeyHandler); shortcutsKeyHandler = null; }
+
+  const content = document.getElementById('modalContent');
+  content.classList.add('modal-wide');
+
+  const buildList = (filter = '') => {
+    const filtered = filter
+      ? state.sounds.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()))
+      : state.sounds;
+
+    if (filtered.length === 0) {
+      return `<div class="shortcuts-empty">${filter ? 'No sounds match your search' : 'No sounds added yet'}</div>`;
+    }
+
+    return filtered.map(s => {
+      const cat = state.categories.find(c => c.id === s.category);
+      const catLabel = cat ? `${cat.emoji} ${cat.name}` : 'Uncategorized';
+      const keyDisplay = s.shortcut
+        ? `<div class="sr-key-btn" id="srkey-${s.id}" onclick="startListeningShortcut('${s.id}')">${acceleratorToDisplay(s.shortcut)}</div>`
+        : `<div class="sr-key-btn unset" id="srkey-${s.id}" onclick="startListeningShortcut('${s.id}')">click</div>`;
+
+      return `<div class="shortcut-row">
+        <div class="sr-color" style="background:${s.color}"></div>
+        <span class="sr-emoji">${s.emoji}</span>
+        <div class="sr-info">
+          <div class="sr-name">${s.name}</div>
+          <div class="sr-category">${catLabel}</div>
+        </div>
+        ${keyDisplay}
+        <button class="sr-clear" onclick="clearShortcutInline('${s.id}')" title="Remove shortcut">✕</button>
+      </div>`;
+    }).join('');
+  };
+
+  showModal(`
+    <h3>⌨️ Keyboard Shortcuts</h3>
+    <input type="text" class="shortcuts-search" id="shortcutsSearch" placeholder="Search sounds..." oninput="filterShortcutsList()">
+    <div class="shortcuts-list" id="shortcutsList">
+      ${buildList()}
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="clearAllShortcuts()">Clear All</button>
+      <button class="btn btn-ghost" onclick="autoAssignShortcuts()">Auto-Assign</button>
+      <button class="btn btn-primary" onclick="hideModal()">Done</button>
+    </div>
+  `);
+
+  content.classList.add('modal-wide');
+
+  // Store builder so filter can use it
+  window._shortcutsBuildList = buildList;
+}
+
+function filterShortcutsList() {
+  const query = document.getElementById('shortcutsSearch')?.value || '';
+  const list = document.getElementById('shortcutsList');
+  if (list && window._shortcutsBuildList) {
+    list.innerHTML = window._shortcutsBuildList(query);
+  }
+}
+
+function startListeningShortcut(soundId) {
+  // Cancel previous listener
+  if (shortcutsKeyHandler) { document.removeEventListener('keydown', shortcutsKeyHandler); }
+
+  // Reset previous button style
+  if (shortcutsListeningId) {
+    const prevBtn = document.getElementById('srkey-' + shortcutsListeningId);
+    if (prevBtn) { prevBtn.classList.remove('listening'); refreshKeyBtn(shortcutsListeningId); }
+  }
+
+  shortcutsListeningId = soundId;
+  const btn = document.getElementById('srkey-' + soundId);
+  if (btn) {
+    btn.classList.add('listening');
+    btn.textContent = '...';
+    btn.classList.remove('unset');
+  }
+
+  shortcutsKeyHandler = async (e) => {
+    if (e.key === 'Escape') {
+      document.removeEventListener('keydown', shortcutsKeyHandler);
+      shortcutsKeyHandler = null;
+      shortcutsListeningId = null;
+      refreshKeyBtn(soundId);
+      return;
+    }
+
+    if (!isValidShortcutKey(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const accel = keyEventToAccelerator(e);
+    if (!accel) return;
+
+    // Unregister old shortcuts and remove key from any other sound
+    for (const s of state.sounds) {
+      if (s.shortcut === accel && s.id !== soundId) {
+        await unregisterSingleShortcut(s.shortcut);
+        s.shortcut = '';
+      }
+    }
+
+    // Assign to this sound
+    const sound = state.sounds.find(s => s.id === soundId);
+    if (sound) {
+      if (sound.shortcut) await unregisterSingleShortcut(sound.shortcut);
+      sound.shortcut = accel;
+    }
+
+    await save();
+    await registerSingleShortcut(soundId, accel);
+    renderSounds();
+
+    document.removeEventListener('keydown', shortcutsKeyHandler);
+    shortcutsKeyHandler = null;
+    shortcutsListeningId = null;
+
+    filterShortcutsList();
+    toast(`"${sound.name}" → ${acceleratorToDisplay(accel)}`, '⌨️');
+  };
+
+  document.addEventListener('keydown', shortcutsKeyHandler);
+}
+
+function refreshKeyBtn(soundId) {
+  const sound = state.sounds.find(s => s.id === soundId);
+  const btn = document.getElementById('srkey-' + soundId);
+  if (btn && sound) {
+    btn.classList.remove('listening');
+    if (sound.shortcut) {
+      btn.textContent = acceleratorToDisplay(sound.shortcut);
+      btn.classList.remove('unset');
+    } else {
+      btn.textContent = 'click';
+      btn.classList.add('unset');
+    }
+  }
+}
+
+async function clearShortcutInline(soundId) {
+  const sound = state.sounds.find(s => s.id === soundId);
+  if (sound) {
+    if (sound.shortcut) await unregisterSingleShortcut(sound.shortcut);
+    sound.shortcut = '';
+    await save();
+    renderSounds();
+    refreshKeyBtn(soundId);
+  }
+}
+
+async function clearAllShortcuts() {
+  if (!confirm('Remove all keyboard shortcuts?')) return;
+  await window.electronAPI.unregisterAllShortcuts();
+  state.sounds.forEach(s => s.shortcut = '');
+  await save();
+  renderSounds();
+  filterShortcutsList();
+  toast('All shortcuts cleared', '⌨️');
+}
+
+async function autoAssignShortcuts() {
+  await window.electronAPI.unregisterAllShortcuts();
+  const keys = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  let ki = 0;
+  state.sounds.forEach(s => {
+    s.shortcut = ki < keys.length ? keys[ki++] : '';
+  });
+  await save();
+  await registerAllGlobalShortcuts();
+  renderSounds();
+  filterShortcutsList();
+  toast(`Assigned ${Math.min(state.sounds.length, keys.length)} shortcuts`, '⌨️');
+}
+
+// ============================
+// MODAL
+// ============================
+function showModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+function hideModal() {
+  const ov = document.getElementById('modalOverlay');
+  if (ov._cleanup) { ov._cleanup(); ov._cleanup = null; }
+  // Clean up shortcuts manager listener
+  if (shortcutsKeyHandler) { document.removeEventListener('keydown', shortcutsKeyHandler); shortcutsKeyHandler = null; }
+  shortcutsListeningId = null;
+  document.getElementById('modalContent').classList.remove('modal-wide');
+  ov.classList.remove('visible');
+}
+
+// ============================
+// HELPERS
+// ============================
+function pickColor(el) {
+  el.parentElement.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function pickEmoji(el) {
+  el.parentElement.querySelectorAll('.emoji-option').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toast(msg, icon = 'ℹ️') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast'; t.innerHTML = `<span>${icon}</span> ${msg}`;
+  c.appendChild(t);
+  setTimeout(() => { t.classList.add('leaving'); setTimeout(() => t.remove(), 300); }, 2500);
+}
+
+// ============================
+// IN-APP KEYBOARD HANDLER (only for Escape/UI, sounds are handled globally)
+// ============================
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    hideContextMenu();
+    if (!shortcutsListeningId) hideModal();
+  }
+});
+
+document.addEventListener('click', () => { hideContextMenu(); hideTopbarMenu(); });
+
+// ============================
+// INIT
+// ============================
+// ============================
+// MONITOR (HEAR SFX YOURSELF)
+// ============================
+function toggleMonitor(enabled) {
+  monitorEnabled = enabled;
+  state.monitorEnabled = enabled;
+  save();
+  updateMonitorStatus();
+  if (enabled) {
+    toast('Monitor on — you\'ll hear sounds too', '🔉');
+  } else {
+    // Stop any monitor audio currently playing
+    Object.values(monitorAudioElements).forEach(a => { a.pause(); a.currentTime = 0; });
+    monitorAudioElements = {};
+    toast('Monitor off', '🔉');
+  }
+}
+
+function setMonitorDevice(deviceId) {
+  monitorDeviceId = deviceId;
+  state.monitorDeviceId = deviceId;
+  save();
+  const device = audioDevices.find(d => d.deviceId === deviceId);
+  updateMonitorStatus();
+  if (monitorEnabled) toast(`Monitor: ${device?.label || 'Default'}`, '🔉');
+}
+
+function updateMonitorStatus() {
+  const el = document.getElementById('monitorStatus');
+  if (monitorEnabled) {
+    const device = audioDevices.find(d => d.deviceId === monitorDeviceId);
+    const label = device?.label || 'Default';
+    const short = label.length > 26 ? label.slice(0, 26) + '…' : label;
+    el.innerHTML = `<span class="status-dot" style="background:var(--neon-yellow);box-shadow:0 0 6px rgba(255,224,45,0.4)"></span><span>Listening on ${short}</span>`;
+  } else {
+    el.innerHTML = `<span class="status-dot" style="background:var(--text-muted)"></span><span>Off — sounds go to output only</span>`;
+  }
+}
+
+// ============================
+// MIC PASSTHROUGH
+// ============================
+async function toggleMic(enabled) {
+  micEnabled = enabled;
+  state.micEnabled = enabled;
+  save();
+  if (enabled) {
+    await startMicPassthrough();
+  } else {
+    stopMicPassthrough();
+  }
+}
+
+async function startMicPassthrough() {
+  try {
+    // Get raw mic stream — all processing disabled
+    const audioConstraints = {
+      echoCancellation: false,
+      noiseSuppression: false,
+      autoGainControl: false,
+    };
+    if (selectedMicDeviceId) audioConstraints.deviceId = { exact: selectedMicDeviceId };
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+
+    // DIRECT passthrough via hidden <audio> element
+    // This bypasses AudioContext entirely — no resampling, no processing, no robotic sound
+    micOutputAudio = new Audio();
+    micOutputAudio.srcObject = micStream;
+    micOutputAudio.volume = parseInt(document.getElementById('micVolume').value) / 100;
+    if (selectedOutputDeviceId && micOutputAudio.setSinkId) {
+      await micOutputAudio.setSinkId(selectedOutputDeviceId);
+    }
+    await micOutputAudio.play();
+
+    // Separate AudioContext ONLY for the visual level meter (not in audio path)
+    micAudioCtx = new AudioContext({ latencyHint: 'playback' });
+    micSourceNode = micAudioCtx.createMediaStreamSource(micStream);
+    micAnalyser = micAudioCtx.createAnalyser();
+    micAnalyser.fftSize = 256;
+    micAnalyser.smoothingTimeConstant = 0.3;
+    micSourceNode.connect(micAnalyser);
+    // NOT connected to destination — meter visuals only
+
+    startMicMeter();
+
+    updateMicStatus(true);
+    toast('Mic passthrough active', '🎤');
+  } catch(err) {
+    console.error('Mic passthrough error:', err);
+    toast('Could not start mic: ' + err.message, '⚠️');
+    document.getElementById('micToggle').checked = false;
+    micEnabled = false;
+    updateMicStatus(false);
+  }
+}
+
+function stopMicPassthrough() {
+  if (micMeterRAF) cancelAnimationFrame(micMeterRAF);
+  if (micOutputAudio) { micOutputAudio.pause(); micOutputAudio.srcObject = null; micOutputAudio = null; }
+  if (micSourceNode) { try { micSourceNode.disconnect(); } catch(e){} }
+  if (micAnalyser) { try { micAnalyser.disconnect(); } catch(e){} }
+  if (micAudioCtx) { micAudioCtx.close().catch(()=>{}); }
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); }
+
+  micStream = null; micAudioCtx = null; micSourceNode = null;
+  micGainNode = null; micAnalyser = null; micOutputAudio = null;
+  micMeterRAF = null;
+
+  document.getElementById('micMeterFill').style.width = '0%';
+  updateMicStatus(false);
+  toast('Mic passthrough off', '🎤');
+}
+
+async function changeMicDevice(deviceId) {
+  selectedMicDeviceId = deviceId;
+  state.micDeviceId = deviceId;
+  save();
+  // If mic is active, restart with new device
+  if (micEnabled) {
+    stopMicPassthrough();
+    await startMicPassthrough();
+  }
+}
+
+function setMicVolume(val) {
+  document.getElementById('micVolumeLabel').textContent = val;
+  state.micVolume = parseInt(val);
+  if (micOutputAudio) {
+    micOutputAudio.volume = parseInt(val) / 100;
+  }
+  save();
+}
+
+function startMicMeter() {
+  const analyser = micAnalyser;
+  const dataArray = new Uint8Array(analyser.frequencyBinCount);
+  const meterFill = document.getElementById('micMeterFill');
+
+  function update() {
+    if (!micEnabled) return;
+    analyser.getByteFrequencyData(dataArray);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+    const avg = sum / dataArray.length;
+    const pct = Math.min(100, (avg / 128) * 100);
+    meterFill.style.width = pct + '%';
+    // Change color based on level
+    if (pct > 80) meterFill.style.background = 'var(--danger)';
+    else if (pct > 50) meterFill.style.background = 'var(--neon-yellow)';
+    else meterFill.style.background = 'var(--neon-green)';
+    micMeterRAF = requestAnimationFrame(update);
+  }
+  update();
+}
+
+function updateMicStatus(active) {
+  const el = document.getElementById('micStatus');
+  if (active) {
+    el.innerHTML = `<span class="status-dot" style="background:var(--neon-green);box-shadow:0 0 6px rgba(45,255,136,0.4)"></span><span>Live — mixed with sounds</span>`;
+  } else {
+    el.innerHTML = `<span class="status-dot" style="background:var(--text-muted)"></span><span>Off</span>`;
+  }
+}
+
+// ============================
+// AUDIO DEVICE MANAGEMENT
+// ============================
+async function loadAudioDevices() {
+  try {
+    // Request permission for device labels — but skip if mic passthrough is already active
+    // (opening a second stream with default constraints degrades the active mic quality)
+    if (!micEnabled) {
+      await navigator.mediaDevices.getUserMedia({ audio: true }).then(s => s.getTracks().forEach(t => t.stop()));
+    }
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    audioDevices = devices.filter(d => d.kind === 'audiooutput');
+
+    // Also populate mic input devices
+    const inputDevices = devices.filter(d => d.kind === 'audioinput');
+    const micSelect = document.getElementById('micInputSelect');
+    const currentMic = micSelect?.value || selectedMicDeviceId;
+    if (micSelect) {
+      micSelect.innerHTML = inputDevices.map(d => {
+        const label = d.label || `Mic ${d.deviceId.slice(0,8)}`;
+        const selected = d.deviceId === currentMic ? 'selected' : '';
+        return `<option value="${d.deviceId}" ${selected}>${label}</option>`;
+      }).join('');
+    }
+
+    // Populate monitor output devices
+    const monSelect = document.getElementById('monitorDeviceSelect');
+    const currentMon = monSelect?.value || monitorDeviceId;
+    if (monSelect) {
+      monSelect.innerHTML = audioDevices.map(d => {
+        const label = d.label || `Device ${d.deviceId.slice(0,8)}`;
+        const selected = d.deviceId === currentMon ? 'selected' : '';
+        return `<option value="${d.deviceId}" ${selected}>${label}</option>`;
+      }).join('');
+      // Default to system default if nothing selected
+      if (!monitorDeviceId && audioDevices.length > 0) {
+        monitorDeviceId = monSelect.value;
+      }
+    }
+
+    const select = document.getElementById('outputDeviceSelect');
+    const currentVal = select.value || selectedOutputDeviceId;
+    select.innerHTML = audioDevices.map(d => {
+      const label = d.label || `Device ${d.deviceId.slice(0,8)}`;
+      const selected = d.deviceId === currentVal ? 'selected' : '';
+      return `<option value="${d.deviceId}" ${selected}>${label}</option>`;
+    }).join('');
+
+    // If we had a saved device, restore it
+    if (state.outputDeviceId) {
+      const exists = audioDevices.find(d => d.deviceId === state.outputDeviceId);
+      if (exists) {
+        select.value = state.outputDeviceId;
+        selectedOutputDeviceId = state.outputDeviceId;
+        updateDeviceStatus(exists.label);
+      }
+    }
+  } catch(err) {
+    console.error('Device enumeration error:', err);
+    toast('Could not load audio devices', '⚠️');
+  }
+}
+
+async function setOutputDevice(deviceId) {
+  selectedOutputDeviceId = deviceId;
+  state.outputDeviceId = deviceId;
+  await save();
+
+  const device = audioDevices.find(d => d.deviceId === deviceId);
+  const label = device?.label || 'Default';
+  updateDeviceStatus(label);
+
+  // Update any currently playing audio
+  for (const [id, audio] of Object.entries(audioElements)) {
+    if (!audio.paused && audio.setSinkId) {
+      try { await audio.setSinkId(deviceId); } catch(e) {}
+    }
+  }
+
+  // Update mic passthrough output — route the <audio> element, not the AudioContext
+  if (micEnabled && micOutputAudio && micOutputAudio.setSinkId) {
+    try { await micOutputAudio.setSinkId(deviceId); } catch(e) {}
+  }
+
+  toast(`Output: ${label}`, '🎧');
+}
+
+function updateDeviceStatus(label) {
+  const statusEl = document.getElementById('deviceStatus');
+  const short = label.length > 28 ? label.slice(0, 28) + '…' : label;
+  const isCable = label.toLowerCase().includes('cable') || label.toLowerCase().includes('virtual');
+  const dotColor = isCable ? 'var(--neon-cyan)' : 'var(--neon-green)';
+  const dotShadow = isCable ? 'rgba(45, 255, 234, 0.4)' : 'rgba(45, 255, 136, 0.4)';
+  statusEl.innerHTML = `<span class="status-dot" style="background:${dotColor};box-shadow:0 0 6px ${dotShadow}"></span><span>${short}</span>`;
+}
+
+// Listen for device changes (plugging in headphones, etc.)
+navigator.mediaDevices?.addEventListener('devicechange', () => loadAudioDevices());
+
+
+// ============================
+// QOL: PLAY MODE (OVERLAP / CUT)
+// ============================
+function togglePlayMode() {
+  state.playMode = state.playMode === 'overlap' ? 'cut' : 'overlap';
+  save();
+  const dot = document.getElementById('playModeDot');
+  const label = document.getElementById('playModeLabel');
+  dot.className = 'mode-dot ' + state.playMode;
+  label.textContent = state.playMode === 'overlap' ? 'Overlap' : 'Cut';
+  toast(state.playMode === 'overlap' ? 'Overlap mode — sounds stack' : 'Cut mode — new sound stops others', '🔀');
+}
+
+function restorePlayMode() {
+  const dot = document.getElementById('playModeDot');
+  const label = document.getElementById('playModeLabel');
+  if (dot && label) {
+    dot.className = 'mode-dot ' + (state.playMode || 'overlap');
+    label.textContent = state.playMode === 'cut' ? 'Cut' : 'Overlap';
+  }
+}
+
+// ============================
+// QOL: PAD SIZE TOGGLE
+// ============================
+function cyclePadSize() {
+  const sizes = ['sm', 'md', 'lg'];
+  const labels = { sm: '▦ Small', md: '▦ Medium', lg: '▦ Large' };
+  const idx = sizes.indexOf(state.padSize || 'md');
+  state.padSize = sizes[(idx + 1) % sizes.length];
+  save();
+  document.getElementById('padSizeBtn').textContent = labels[state.padSize];
+  renderSounds();
+}
+
+function restorePadSize() {
+  const labels = { sm: '▦ Small', md: '▦ Medium', lg: '▦ Large' };
+  const btn = document.getElementById('padSizeBtn');
+  if (btn) btn.textContent = labels[state.padSize || 'md'];
+}
+
+// ============================
+// QOL: FAVORITES
+// ============================
+async function toggleFavorite(id) {
+  const sound = state.sounds.find(s => s.id === id);
+  if (sound) {
+    sound.favorite = !sound.favorite;
+    await save();
+    renderSounds();
+    toast(sound.favorite ? `"${sound.name}" pinned` : `"${sound.name}" unpinned`, sound.favorite ? '⭐' : '☆');
+  }
+}
+
+// ============================
+// QOL: RANDOM SOUND
+// ============================
+function playRandomSound() {
+  let pool = state.sounds;
+  if (state.activeCategory !== 'all') {
+    pool = pool.filter(s => s.category === state.activeCategory);
+  }
+  if (pool.length === 0) return toast('No sounds to play', '🎲');
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  togglePlay(pick.id);
+  toast(`Random: ${pick.name}`, '🎲');
+}
+
+// ============================
+// QOL: DRAG & DROP REORDER
+// ============================
+function onPadDragStart(e, id) {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.classList.add('dragging');
+}
+
+function onPadDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function onPadDrop(e, targetId) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over-pad');
+  if (!dragSrcId || dragSrcId === targetId) return;
+
+  const srcIdx = state.sounds.findIndex(s => s.id === dragSrcId);
+  const tgtIdx = state.sounds.findIndex(s => s.id === targetId);
+  if (srcIdx < 0 || tgtIdx < 0) return;
+
+  const [moved] = state.sounds.splice(srcIdx, 1);
+  state.sounds.splice(tgtIdx, 0, moved);
+  save();
+  renderSounds();
+  renderCategories();
+}
+
+function onPadDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  dragSrcId = null;
+  document.querySelectorAll('.drag-over-pad').forEach(el => el.classList.remove('drag-over-pad'));
+}
+
+// ============================
+// QOL: HOVER PREVIEW
+// ============================
+function startHoverPreview(id) {
+  if (audioElements[id] && !audioElements[id].paused) return; // already playing
+  stopHoverPreview();
+
+  hoverPreviewTimeout = setTimeout(() => {
+    const sound = state.sounds.find(s => s.id === id);
+    if (!sound) return;
+    const filePath = audioPaths[id];
+    if (!filePath) return;
+
+    hoverPreviewAudio = new Audio('file:///' + filePath.replace(/\\/g, '/'));
+    hoverPreviewAudio.volume = 0.25 * (state.masterVolume / 100);
+
+    // Route to monitor device if available, otherwise default
+    const playPreview = async () => {
+      try {
+        if (monitorEnabled && monitorDeviceId && hoverPreviewAudio.setSinkId) {
+          await hoverPreviewAudio.setSinkId(monitorDeviceId);
+        }
+        await hoverPreviewAudio.play();
+        // Stop after 2 seconds
+        setTimeout(() => { if (hoverPreviewAudio) { hoverPreviewAudio.pause(); hoverPreviewAudio = null; } }, 2000);
+      } catch(err) {}
+    };
+    playPreview();
+  }, 400); // 400ms delay before preview starts
+}
+
+function stopHoverPreview() {
+  if (hoverPreviewTimeout) { clearTimeout(hoverPreviewTimeout); hoverPreviewTimeout = null; }
+  if (hoverPreviewAudio) { hoverPreviewAudio.pause(); hoverPreviewAudio = null; }
+}
+
+// ============================
+// QOL: IMPORT / EXPORT
+// ============================
+async function exportSoundboard() {
+  hideTopbarMenu();
+  toast('Exporting...', '📤');
+  const ok = await window.electronAPI.exportSoundboard();
+  if (ok) toast('Soundboard exported!', '✅');
+  else toast('Export cancelled or failed', '⚠️');
+}
+
+async function importSoundboard() {
+  hideTopbarMenu();
+  if (!confirm('Import will replace your current soundboard. Continue?')) return;
+  toast('Importing...', '📥');
+  const data = await window.electronAPI.importSoundboard();
+  if (data) {
+    state = { ...state, ...data };
+    // Re-resolve file paths
+    audioPaths = {};
+    for (const s of state.sounds) {
+      if (s.fileName) audioPaths[s.id] = await window.electronAPI.getSoundPath(s.fileName);
+    }
+    document.getElementById('masterVolume').value = state.masterVolume;
+    document.getElementById('masterVolumeLabel').textContent = state.masterVolume;
+    renderCategories();
+    renderSounds();
+    await registerAllGlobalShortcuts();
+    restorePlayMode();
+    restorePadSize();
+    toast('Soundboard imported!', '✅');
+  } else {
+    toast('Import cancelled or failed', '⚠️');
+  }
+}
+
+// ============================
+// QOL: TOPBAR DROPDOWN MENU
+// ============================
+function toggleTopbarMenu(e) {
+  e.stopPropagation();
+  document.getElementById('topbarDropdown').classList.toggle('visible');
+}
+function hideTopbarMenu() {
+  document.getElementById('topbarDropdown').classList.remove('visible');
+}
+
+// ============================
+// QOL: STOP ALL GLOBAL HOTKEY
+// ============================
+function showStopAllShortcutModal() {
+  hideTopbarMenu();
+  showModal(`
+    <h3>🛑 Stop All — Global Hotkey</h3>
+    <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">
+      Press any key to set a global hotkey for stopping all sounds.<br>
+      Current: <kbd style="font-family:'JetBrains Mono';background:var(--bg-deep);padding:2px 7px;border-radius:4px;border:1px solid var(--border);">${acceleratorToDisplay(state.stopAllShortcut) || 'None'}</kbd>
+    </p>
+    <div id="shortcutCapture" style="text-align:center;padding:28px;background:var(--bg-deep);border-radius:10px;border:2px dashed var(--border);font-size:26px;font-family:'JetBrains Mono';color:var(--accent);">
+      Press a key...
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="clearStopAllShortcut()">Remove</button>
+      <button class="btn btn-ghost" onclick="hideModal()">Cancel</button>
+    </div>
+  `);
+  const handler = async (e) => {
+    if (!isValidShortcutKey(e)) return;
+    e.preventDefault();
+    const accel = keyEventToAccelerator(e);
+    if (!accel) return;
+
+    // Unregister old
+    if (state.stopAllShortcut) await window.electronAPI.unregisterGlobalShortcut(state.stopAllShortcut);
+    state.stopAllShortcut = accel;
+    await save();
+    await window.electronAPI.registerStopAllShortcut(accel);
+
+    document.getElementById('shortcutCapture').textContent = acceleratorToDisplay(accel);
+    document.getElementById('shortcutCapture').style.borderColor = 'var(--accent)';
+    document.getElementById('shortcutCapture').style.color = 'var(--neon-green)';
+    document.removeEventListener('keydown', handler);
+    setTimeout(() => { hideModal(); toast('Stop All hotkey: ' + acceleratorToDisplay(accel), '🛑'); }, 400);
+  };
+  document.addEventListener('keydown', handler);
+  document.getElementById('modalOverlay')._cleanup = () => document.removeEventListener('keydown', handler);
+}
+
+async function clearStopAllShortcut() {
+  if (state.stopAllShortcut) await window.electronAPI.unregisterGlobalShortcut(state.stopAllShortcut);
+  state.stopAllShortcut = '';
+  await save();
+  hideModal();
+  toast('Stop All hotkey removed', '🛑');
+}
+
+// ============================
+// INIT
+// ============================
+async function restoreAudioSettings() {
+  // Restore output device
+  if (state.outputDeviceId) {
+    const outExists = audioDevices.find(d => d.deviceId === state.outputDeviceId);
+    if (outExists) {
+      selectedOutputDeviceId = state.outputDeviceId;
+      document.getElementById('outputDeviceSelect').value = state.outputDeviceId;
+      updateDeviceStatus(outExists.label);
+    }
+  }
+
+  // Restore mic device selection
+  if (state.micDeviceId) {
+    selectedMicDeviceId = state.micDeviceId;
+    const micSel = document.getElementById('micInputSelect');
+    if (micSel) micSel.value = state.micDeviceId;
+  }
+
+  // Restore monitor device selection
+  if (state.monitorDeviceId) {
+    monitorDeviceId = state.monitorDeviceId;
+    const monSel = document.getElementById('monitorDeviceSelect');
+    if (monSel) monSel.value = state.monitorDeviceId;
+  }
+
+  // Restore monitor toggle
+  if (state.monitorEnabled) {
+    monitorEnabled = true;
+    document.getElementById('monitorToggle').checked = true;
+    updateMonitorStatus();
+  }
+
+  // Restore mic toggle (auto-start passthrough)
+  if (state.micEnabled) {
+    micEnabled = true;
+    document.getElementById('micToggle').checked = true;
+    await startMicPassthrough();
+  }
+}
+
+(async () => {
+  await loadData();
+  renderCategories();
+  renderSounds();
+  await loadAudioDevices();
+  await restoreAudioSettings();
+  await registerAllGlobalShortcuts();
+  restorePlayMode();
+  restorePadSize();
+  // Register stop all hotkey if saved
+  if (state.stopAllShortcut) {
+    await window.electronAPI.registerStopAllShortcut(state.stopAllShortcut);
+  }
+})();
+</script>
+</body>
+</html>

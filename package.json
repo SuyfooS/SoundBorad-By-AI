@@ -1,0 +1,25 @@
+{
+  "name": "soundboard",
+  "version": "1.0.0",
+  "description": "A sleek desktop soundboard app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.suyfoo.soundboard",
+    "productName": "SoundBoard by suyfoo",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  }
+}
