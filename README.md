@@ -36,8 +36,8 @@ A sleek desktop soundboard app built with Electron. Play sound effects in Discor
 
 ```bash
 # Clone the repo
-git clone https://github.com/suyfoo/soundboard.git
-cd soundboard
+git clone https://github.com/SuyfooS/SoundBorad-By-AI.git
+cd SoundBorad-By-AI
 
 # Install dependencies
 npm install

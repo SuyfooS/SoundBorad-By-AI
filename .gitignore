@@ -19,3 +19,6 @@ Desktop.ini
 # App data (user sounds & settings - not for repo)
 soundboard-data.json
 sounds/
+
+# One-time scripts
+push-to-github.bat
