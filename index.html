@@ -765,6 +765,7 @@
           <span class="mode-dot overlap" id="playModeDot"></span> <span id="playModeLabel">Overlap</span>
         </button>
         <button class="btn btn-ghost" onclick="playRandomSound()" title="Play random sound from category">🎲 Random</button>
+        <button class="btn btn-ghost" onclick="toggleHoverPreview()" id="hoverPreviewBtn" title="Toggle sound preview on hover">👁 Preview: On</button>
         <button class="btn btn-ghost" onclick="cyclePadSize()" title="Change pad size" id="padSizeBtn">▦ Medium</button>
         <button class="btn btn-ghost" onclick="showShortcutsManager()">⌨️ Shortcuts</button>
         <button class="btn btn-ghost" onclick="stopAll()">⏹ Stop All</button>
@@ -971,6 +972,7 @@ async function save() {
     micVolume: state.micVolume ?? 100,
     monitorEnabled: state.monitorEnabled || false,
     monitorDeviceId: state.monitorDeviceId || '',
+    hoverPreview: state.hoverPreview ?? true,
     playMode: state.playMode || 'overlap',
     padSize: state.padSize || 'md',
     stopAllShortcut: state.stopAllShortcut || '',
@@ -1003,6 +1005,7 @@ async function loadData() {
   }
 
   // Defaults for new QOL features
+  if (state.hoverPreview === undefined) state.hoverPreview = true;
   if (!state.playMode) state.playMode = 'overlap';
   if (!state.padSize) state.padSize = 'md';
   if (!state.stopAllShortcut) state.stopAllShortcut = '';
@@ -2025,6 +2028,22 @@ function restorePadSize() {
 }
 
 // ============================
+// QOL: HOVER PREVIEW TOGGLE
+// ============================
+function toggleHoverPreview() {
+  state.hoverPreview = !state.hoverPreview;
+  save();
+  const btn = document.getElementById('hoverPreviewBtn');
+  btn.textContent = state.hoverPreview ? '👁 Preview: On' : '👁 Preview: Off';
+  toast(state.hoverPreview ? 'Hover preview on' : 'Hover preview off', '👁');
+}
+
+function restoreHoverPreview() {
+  const btn = document.getElementById('hoverPreviewBtn');
+  if (btn) btn.textContent = state.hoverPreview ? '👁 Preview: On' : '👁 Preview: Off';
+}
+
+// ============================
 // QOL: FAVORITES
 // ============================
 async function toggleFavorite(id) {
@@ -2091,6 +2110,7 @@ function onPadDragEnd(e) {
 // QOL: HOVER PREVIEW
 // ============================
 function startHoverPreview(id) {
+  if (!state.hoverPreview) return;
   if (audioElements[id] && !audioElements[id].paused) return; // already playing
   stopHoverPreview();
 
@@ -2271,6 +2291,7 @@ async function restoreAudioSettings() {
   await registerAllGlobalShortcuts();
   restorePlayMode();
   restorePadSize();
+  restoreHoverPreview();
   // Register stop all hotkey if saved
   if (state.stopAllShortcut) {
     await window.electronAPI.registerStopAllShortcut(state.stopAllShortcut);
